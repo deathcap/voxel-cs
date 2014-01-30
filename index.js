@@ -6,6 +6,7 @@ var rtcDataStream = require('rtc-data-stream');
 var quickconnect = require('rtc-quickconnect');
 var duplexEmitter = require('duplex-emitter');
 var engine = require('voxel-engine');
+var extend = require('extend');
 
 module.exports = function(opts) {
   return new CSPlugin(opts);
@@ -18,13 +19,15 @@ function CSPlugin(opts) {
   this.enableServer = opts.remoteHost === undefined;  // local server unless connecting remotely
   this.enableClient = process.browser; // always have client if running in browser
 
-  this.serverOpts = {
+  this.commonOpts = opts.commonOpts || {};
+
+  this.serverOpts = extend(extend({
     engine: engine,
     avatarInitialPosition: [2, 20, 2],
     forwardEvents: ['attack', 'chat']
-  };
+  }, opts.serverOpts), this.commonOpts);
 
-  this.clientOpts = {engine: engine}
+  this.clientOpts = extend(extend({engine: engine}, opts.clientOpts), this.commonOpts);
   this.enable();
 }
 
